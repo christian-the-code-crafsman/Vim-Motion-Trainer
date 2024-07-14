@@ -1,0 +1,30 @@
+.Terminal {
+    background-color: #000;
+    color: #292;
+
+    width: 70vw;
+    height: 90vh;
+
+    margin: 0 auto;
+    padding: 0.25em 0.5em;
+
+    font-family: monospace;
+    font-size: 1.25em;
+    font-weight: bold;
+
+    border-radius: 0.7em;
+}
+
+.Terminal p {
+    margin: 0;
+    padding: 0;
+    word-break: break-all;
+}
+
+.Terminal-Cursor {
+    background-color: #666;
+}
+
+.Terminal-Visual-Mode {
+    background-color: #800;
+}
