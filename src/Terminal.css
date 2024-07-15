@@ -2,14 +2,14 @@
     background-color: #000;
     color: #292;
 
-    width: 70vw;
-    height: 90vh;
+    width: 1280px;
+    height: 720px;
 
     margin: 0 auto;
     padding: 0.25em 0.5em;
 
     font-family: monospace;
-    font-size: 1.25em;
+    font-size: 1.75em;
     font-weight: bold;
 
     border-radius: 0.7em;

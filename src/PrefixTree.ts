@@ -65,7 +65,7 @@ export class PrefixTree<T> {
     }
 
     get(key: string) {
-        return this.getNode(key);
+        return this.getNode(key).value;
     }
 
     isTerminal(key: string) {

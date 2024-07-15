@@ -1,32 +1,78 @@
+import { useEffect, useRef } from 'react';
 import './Terminal.css';
 
 type TerminalXY = { x: number, y: number };
 
 type TerminalProps = {
     terminalContent: string[],
+    bottomBar: string,
     cursorPos: TerminalXY,
     visualHighlight?: { start: TerminalXY, endInclusive: TerminalXY },
     onKeyDown: React.KeyboardEventHandler,
 };
 
+function computeCharacterDimensions(ctx: CanvasRenderingContext2D) {
+    let charDims = ctx.measureText("T");
+    return ({
+        lineHeight: charDims.fontBoundingBoxAscent + charDims.fontBoundingBoxDescent,
+        charWidth: charDims.actualBoundingBoxLeft + charDims.actualBoundingBoxRight,
+        descent: charDims.fontBoundingBoxDescent,
+    });
+}
+
+function drawCursor(ctx: CanvasRenderingContext2D, x: number, y: number, charWidth: number, lineHeight: number, descent: number) {
+    ctx.fillStyle = "#090";
+    ctx.fillRect(x * charWidth, y * lineHeight + descent, charWidth, lineHeight);
+}
+
+function drawTerminal(canvas: HTMLCanvasElement, lines: string[], fontSize: number, cursorPos: TerminalXY) {
+    const ctx = canvas.getContext("2d");
+    if (ctx === null) {
+        return;
+    }
+
+    const charDims = computeCharacterDimensions(ctx);
+    let lineBaseline = charDims.lineHeight;
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    drawCursor(ctx, cursorPos.x, cursorPos.y, charDims.charWidth, charDims.lineHeight, charDims.descent);
+
+    ctx.font = fontSize + "px monospace";
+    lines.forEach(line => {
+        ctx.fillStyle = "#999";
+        ctx.fillText(line, 0, lineBaseline);
+
+        lineBaseline += charDims.lineHeight;
+    });
+}
+
 function Terminal(props: TerminalProps) {
+    const canvasRef = useRef(null as HTMLCanvasElement | null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (canvas === null) {
+            return;
+        }
+
+        const draw = () => {
+            drawTerminal(canvas, props.terminalContent, 32, props.cursorPos);
+            window.requestAnimationFrame(draw);
+        };
+        window.requestAnimationFrame(draw);
+    }, [canvasRef, props.terminalContent, props.cursorPos]);
+
+
     return (
-        <section
+        <canvas
+            ref={canvasRef}
             className="Terminal"
+            height={720}
+            width={1280}
             tabIndex={0} // so the section can have focus and produce keyboard events
             onKeyDown={props.onKeyDown}>
-            {
-                props.terminalContent.map((line, i) => {
-                    if (i === props.cursorPos.y) {
-                        const prefix = line.substring(0, props.cursorPos.x);
-                        const infix = line.charAt(props.cursorPos.x);
-                        const suffix = line.substring(props.cursorPos.x + 1, line.length);
-                        return <p>{prefix}<span className="Terminal-Cursor">{infix}</span>{suffix}</p>;
-                    }
-                    return <p>{line}</p>;
-                })
-            }
-        </section>
+        </canvas>
     );
 }
 
